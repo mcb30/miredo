@@ -1,7 +1,14 @@
 # vim: expandtab
+
+%if 0%{?rhel}
+%define withjudy 0
+%else
+%define withjudy 1
+%endif
+
 Name:           miredo
 Version:        1.1.7
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Tunneling of IPv6 over UDP through NATs
 
 Group:          Applications/Internet
@@ -13,7 +20,12 @@ Source2:        miredo-server.init
 Patch0:         miredo-config-not-exec
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:    libcap-devel Judy-devel
+BuildRequires:    libcap-devel 
+%if %{withjudy}
+BuildRequires:     Judy-devel
+%endif
+
+
 Requires(pre):    shadow-utils
 Requires(post):   chkconfig, /sbin/ldconfig
 # This is for /sbin/service
@@ -85,7 +97,10 @@ part of miredo. Most people only need the client part.
                --disable-static \
                --disable-rpath \
                --enable-miredo-user \
-               --without-Judy
+%if %{withjudy} == 0
+               --without-Judy \
+%endif
+
 
 # rpath does not really work
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
@@ -190,6 +205,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Jul 28 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> 1.1.7-3
+- without July as optional, hopefully the last EL fix
+
 * Sun Jul 19 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> 1.1.7-2
 - rename miredo to miredo-libs
 - fixes EL
