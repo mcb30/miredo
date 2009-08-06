@@ -8,7 +8,7 @@
 
 Name:           miredo
 Version:        1.1.7
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Tunneling of IPv6 over UDP through NATs
 
 Group:          Applications/Internet
@@ -80,7 +80,7 @@ Summary:        Tunneling client for IPv6 over UDP through NATs
 Group:          Applications/Internet
 Requires:       %{name}-libs = %{version}-%{release}
 Provides:       %{name} = %{version}-%{release}
-Obsoletes:      %{name} = 1.1.6-2
+Obsoletes:      %{name} <= 1.1.6
 
 
 %description client
@@ -174,7 +174,7 @@ rm -rf %{buildroot}
 %dir %{_sysconfdir}/miredo
 %{_libdir}/libteredo.so.*
 %{_libdir}/libtun6.so.*
-%{_libdir}/miredo/miredo-privproc
+%{_libdir}/miredo/
 
 %files devel
 %defattr(-,root,root,-)
@@ -205,6 +205,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Jul 30 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> 1.1.7-4
+- Fix Obsoletes for smooth upgrade
+
 * Tue Jul 28 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> 1.1.7-3
 - without July as optional, hopefully the last EL fix
 
