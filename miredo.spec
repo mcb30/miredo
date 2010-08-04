@@ -8,7 +8,7 @@
 
 Name:           miredo
 Version:        1.1.7
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Tunneling of IPv6 over UDP through NATs
 
 Group:          Applications/Internet
@@ -18,6 +18,7 @@ Source0:        http://www.remlab.net/files/miredo/miredo-%{version}.tar.bz2
 Source1:        miredo-client.init
 Source2:        miredo-server.init
 Patch0:         miredo-config-not-exec
+Patch1:         reread-resolv-before-resolv-ipv4.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    libcap-devel 
@@ -91,6 +92,7 @@ part of miredo. Most people only need the client part.
 %prep
 %setup -q
 %patch0 -p1 
+%patch1 -p1
 
 %build
 %configure \
@@ -205,6 +207,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Aug 04 2010 "Jens Kuehnel <fedora-package@jens.kuehnel.org>" - 1.1.7-5
+- Fixed BZ#606106 - miredo-client fails to notice resolv.conf changes
+
 * Thu Jul 30 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> 1.1.7-4
 - Fix Obsoletes for smooth upgrade
 
