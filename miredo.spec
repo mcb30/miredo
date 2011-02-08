@@ -8,7 +8,7 @@
 
 Name:           miredo
 Version:        1.1.7
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Tunneling of IPv6 over UDP through NATs
 
 Group:          Applications/Internet
@@ -207,6 +207,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.7-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Wed Aug 04 2010 "Jens Kuehnel <fedora-package@jens.kuehnel.org>" - 1.1.7-5
 - Fixed BZ#606106 - miredo-client fails to notice resolv.conf changes
 
