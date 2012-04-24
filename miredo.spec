@@ -8,15 +8,15 @@
 
 Name:           miredo
 Version:        1.1.7
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Tunneling of IPv6 over UDP through NATs
 
 Group:          Applications/Internet
 License:        GPLv2+
 URL:            http://www.simphalempin.com/dev/miredo/
 Source0:        http://www.remlab.net/files/miredo/miredo-%{version}.tar.bz2
-Source1:        miredo-client.init
-Source2:        miredo-server.init
+Source1:        miredo-client.service
+Source2:        miredo-server.service
 Patch0:         miredo-config-not-exec
 Patch1:         reread-resolv-before-resolv-ipv4.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -25,13 +25,6 @@ BuildRequires:    libcap-devel
 %if %{withjudy}
 BuildRequires:     Judy-devel
 %endif
-
-
-Requires(pre):    shadow-utils
-Requires(post):   chkconfig, /sbin/ldconfig
-# This is for /sbin/service
-Requires(preun):  chkconfig, initscripts
-Requires(postun): initscripts, /sbin/ldconfig
 
 %description
 Miredo is an implementation of the "Teredo: Tunneling IPv6 over UDP
@@ -45,6 +38,10 @@ IPv6-over-IPv4 (including 6to4).
 %package libs
 Summary:        Tunneling of IPv6 over UDP through NATs
 Group:          Applications/Internet 
+Requires(post):   /sbin/ldconfig
+Requires(postun): /sbin/ldconfig
+Requires(pre):    shadow-utils
+
 
 %description libs
 Miredo is an implementation of the "Teredo: Tunneling IPv6 over UDP
@@ -71,6 +68,11 @@ you will need to install %{name}-devel.
 Summary:        Tunneling server for IPv6 over UDP through NATs
 Group:          Applications/Internet
 Requires:       %{name}-libs = %{version}-%{release}
+Requires(post): systemd-units
+Requires(preun): systemd-units
+Requires(postun): systemd-units
+# For triggerun
+Requires(post): systemd-sysv
 %description server
 Miredo is an implementation of the "Teredo: Tunneling IPv6 over UDP
 through NATs" proposed Internet standard (RFC4380). This offers the server 
@@ -80,6 +82,11 @@ part of miredo. Most people will need only the client part.
 Summary:        Tunneling client for IPv6 over UDP through NATs
 Group:          Applications/Internet
 Requires:       %{name}-libs = %{version}-%{release}
+Requires(post): systemd-units
+Requires(preun): systemd-units
+Requires(postun): systemd-units
+# For triggerun
+Requires(post): systemd-sysv
 Provides:       %{name} = %{version}-%{release}
 Obsoletes:      %{name} <= 1.1.6
 
@@ -116,9 +123,9 @@ make install DESTDIR=%{buildroot} INSTALL='install -p'
 %find_lang %{name}
 mkdir rpmdocs
 mv %{buildroot}%{_docdir}/miredo/examples rpmdocs/
-mkdir -p %{buildroot}%{_initrddir}
-install -p -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/miredo-client
-install -p -m 755 %{SOURCE2} %{buildroot}%{_initrddir}/miredo-server
+mkdir -p %{buildroot}%{_unitdir}
+install -p -m 644 %{SOURCE1} %{buildroot}%{_unitdir}/miredo-client.service
+install -p -m 644 %{SOURCE2} %{buildroot}%{_unitdir}/miredo-server.service
 rm -f %{buildroot}%{_libdir}/lib*.la
 touch %{buildroot}%{_sysconfdir}/miredo/miredo-server.conf
 
@@ -133,37 +140,70 @@ exit 0
 %post libs -p /sbin/ldconfig
  
 %post client 
-/sbin/chkconfig --add miredo-client
+if [ $1 -eq 1 ] ; then 
+    # Initial installation 
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
+
 
 %post server
-/sbin/chkconfig --add miredo-server
+if [ $1 -eq 1 ] ; then 
+    # Initial installation 
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
 
 
 %preun client
-if [ $1 = 0 ] ; then
-    /sbin/service miredo-client stop >/dev/null 2>&1
-    /sbin/chkconfig --del miredo-client
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    /bin/systemctl --no-reload disable miredo-client.service > /dev/null 2>&1 || :
+    /bin/systemctl stop miredo-client.service > /dev/null 2>&1 || :
 fi
 
 %preun server
-if [ $1 = 0 ] ; then
-    /sbin/service miredo-server stop >/dev/null 2>&1
-    /sbin/chkconfig --del miredo-server
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    /bin/systemctl --no-reload disable miredo-server.service > /dev/null 2>&1 || :
+    /bin/systemctl stop miredo-server.service > /dev/null 2>&1 || :
 fi
 
 
 %postun libs -p /sbin/ldconfig
 
 %postun client
-if [ "$1" -ge "1" ] ; then
-    /sbin/service miredo-client condrestart >/dev/null 2>&1 || :
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart miredo-client.service >/dev/null 2>&1 || :
 fi
 
 
 %postun server
-if [ "$1" -ge "1" ] ; then
-    /sbin/service miredo-server condrestart >/dev/null 2>&1 || :
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart miredo-server.service >/dev/null 2>&1 || :
 fi
+
+%triggerun -- miredo-client < 1.1.7-8
+# Save the current service runlevel info
+# User must manually run systemd-sysv-convert --apply miredo-client
+# to migrate them to systemd targets
+/usr/bin/systemd-sysv-convert --save miredo-client >/dev/null 2>&1 ||:
+
+# Run these because the SysV package being removed won't do them
+/sbin/chkconfig --del miredo-client >/dev/null 2>&1 || :
+/bin/systemctl try-restart miredo-client.service >/dev/null 2>&1 || :
+
+%triggerun -- miredo-server < 1.1.7-8
+# Save the current service runlevel info
+# User must manually run systemd-sysv-convert --apply miredo-server
+# to migrate them to systemd targets
+/usr/bin/systemd-sysv-convert --save miredo-server >/dev/null 2>&1 ||:
+
+# Run these because the SysV package being removed won't do them
+/sbin/chkconfig --del miredo-server >/dev/null 2>&1 || :
+/bin/systemctl try-restart miredo-server.service >/dev/null 2>&1 || :
 
 %clean
 rm -rf %{buildroot}
@@ -191,7 +231,7 @@ rm -rf %{buildroot}
 %{_bindir}/teredo-mire
 %{_sbindir}/miredo-server
 %{_sbindir}/miredo-checkconf
-%{_initrddir}/miredo-server
+%{_unitdir}/miredo-server.service
 %doc %{_mandir}/man1/teredo-mire*
 %doc %{_mandir}/man?/miredo-server*
 %doc %{_mandir}/man?/miredo-checkconf*
@@ -201,12 +241,15 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/miredo/miredo.conf
 %config(noreplace) %{_sysconfdir}/miredo/client-hook
-%{_initrddir}/miredo-client
+%{_unitdir}/miredo-client.service
 %{_sbindir}/miredo
 %doc %{_mandir}/man?/miredo.*
 
 
 %changelog
+* Tue Apr 24 2012 Jon Ciesla <limburgher@gmail.com> - 1.1.7-8
+- Migrate to systemd, BZ 789782.
+
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.7-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
