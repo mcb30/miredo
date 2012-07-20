@@ -8,7 +8,7 @@
 
 Name:           miredo
 Version:        1.1.7
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        Tunneling of IPv6 over UDP through NATs
 
 Group:          Applications/Internet
@@ -247,6 +247,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Jul 20 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.7-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Tue Apr 24 2012 Jon Ciesla <limburgher@gmail.com> - 1.1.7-8
 - Migrate to systemd, BZ 789782.
 
