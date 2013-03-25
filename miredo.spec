@@ -7,14 +7,14 @@
 %endif
 
 Name:           miredo
-Version:        1.1.7
-Release:        10%{?dist}
+Version:        1.2.5
+Release:        3%{?dist}
 Summary:        Tunneling of IPv6 over UDP through NATs
 
 Group:          Applications/Internet
 License:        GPLv2+
-URL:            http://www.simphalempin.com/dev/miredo/
-Source0:        http://www.remlab.net/files/miredo/miredo-%{version}.tar.bz2
+URL:            http://www.remlab.net/miredo/
+Source0:        http://www.remlab.net/files/miredo/miredo-%{version}.tar.xz
 Source1:        miredo-client.service
 Source2:        miredo-server.service
 Patch0:         miredo-config-not-exec
@@ -22,6 +22,7 @@ Patch1:         reread-resolv-before-resolv-ipv4.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    libcap-devel 
+BuildRequires:    autoconf
 %if %{withjudy}
 BuildRequires:     Judy-devel
 %endif
@@ -30,7 +31,7 @@ BuildRequires:     Judy-devel
 Miredo is an implementation of the "Teredo: Tunneling IPv6 over UDP
 through NATs" proposed Internet standard (RFC4380). It can serve
 either as a Teredo client, a stand-alone Teredo relay, or a Teredo
-server, please install the miredo-server or miredo-client aproprietly.
+server, please install the miredo-server or miredo-client appropriately.
 It is meant to provide IPv6 connectivity to hosts behind NAT
 devices, most of which do not support IPv6, and not even
 IPv6-over-IPv4 (including 6to4).
@@ -47,7 +48,7 @@ Requires(pre):    shadow-utils
 Miredo is an implementation of the "Teredo: Tunneling IPv6 over UDP
 through NATs" proposed Internet standard (RFC4380). It can serve
 either as a Teredo client, a stand-alone Teredo relay, or a Teredo
-server, please install the miredo-server or miredo-client aproprietly.
+server, please install the miredo-server or miredo-client appropriately.
 It is meant to provide IPv6 connectivity to hosts behind NAT
 devices, most of which do not support IPv6, and not even
 IPv6-over-IPv4 (including 6to4).
@@ -100,6 +101,7 @@ part of miredo. Most people only need the client part.
 %setup -q
 %patch0 -p1 
 %patch1 -p1
+autoconf
 
 %build
 %configure \
@@ -127,6 +129,8 @@ mkdir -p %{buildroot}%{_unitdir}
 install -p -m 644 %{SOURCE1} %{buildroot}%{_unitdir}/miredo-client.service
 install -p -m 644 %{SOURCE2} %{buildroot}%{_unitdir}/miredo-server.service
 rm -f %{buildroot}%{_libdir}/lib*.la
+# We use our own service file
+rm -f %{buildroot}/usr/lib*/systemd/system/miredo.service
 touch %{buildroot}%{_sysconfdir}/miredo/miredo-server.conf
 
 
@@ -212,11 +216,8 @@ rm -rf %{buildroot}
 %files libs -f %{name}.lang
 %defattr(-,root,root,-)
 %doc AUTHORS ChangeLog COPYING NEWS README THANKS TODO rpmdocs/*
-#%doc %{_mandir}/man?/miredo*
-%dir %{_sysconfdir}/miredo
 %{_libdir}/libteredo.so.*
 %{_libdir}/libtun6.so.*
-%{_libdir}/miredo/
 
 %files devel
 %defattr(-,root,root,-)
@@ -243,10 +244,20 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/miredo/client-hook
 %{_unitdir}/miredo-client.service
 %{_sbindir}/miredo
+%{_libexecdir}/miredo/miredo-privproc
 %doc %{_mandir}/man?/miredo.*
 
 
 %changelog
+* Mon Mar 25 2013 Jens <bugzilla-redhat@jens.kuehnel.org> - 1.2.5-3
+- add autoconf for aarch64 support
+
+* Fri Mar 22 2013 Jens <bugzilla-redhat@jens.kuehnel.org> - 1.2.5-2
+- Fix deletion of mirdeo.service file for 32bit
+
+* Thu Mar 21 2013 Jens Kuehnel <bugzilla-redhat@jens.kuehnel.org> - 1.2.5-1
+- Update to 1.2.5
+
 * Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.7-10
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
@@ -265,34 +276,34 @@ rm -rf %{buildroot}
 * Wed Aug 04 2010 "Jens Kuehnel <fedora-package@jens.kuehnel.org>" - 1.1.7-5
 - Fixed BZ#606106 - miredo-client fails to notice resolv.conf changes
 
-* Thu Jul 30 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> 1.1.7-4
+* Thu Jul 30 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> - 1.1.7-4
 - Fix Obsoletes for smooth upgrade
 
-* Tue Jul 28 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> 1.1.7-3
+* Tue Jul 28 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> - 1.1.7-3
 - without July as optional, hopefully the last EL fix
 
-* Sun Jul 19 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> 1.1.7-2
+* Sun Jul 19 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> - 1.1.7-2
 - rename miredo to miredo-libs
 - fixes EL
 
-* Thu Jul 14 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> 1.1.7-1
+* Tue Jul 14 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> - 1.1.7-1
 - split into server and client package
 - update to upstream 1.1.7
 
-* Sat Jun 28 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> 1.1.6-2
+* Sun Jun 28 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> - 1.1.6-2
 - renamed miredo startscript to miredo-client
 - preliminary preperation for EL
 - miredo-server.conf ghosted
 - removed .la files instead excluding of them
 - fixed ldconfig requires
 
-* Sat Jun 27 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> 1.1.6-1
+* Sat Jun 27 2009 Jens Kuehnel <fedora-package@jens.kuehnel.org> - 1.1.6-1
 - ReInitiate Fedora package review
 - update to 1.1.6
 - removed isatap stuff
 - don't start it by default
 
-* Sun Oct 05 2008 Charles R. Anderson <cra@wpi.edu> 1.1.5-1
+* Sun Oct 05 2008 Charles R. Anderson <cra@wpi.edu> - 1.1.5-1
 - Initial Fedora package based on Dries miredo.spec 5059
 - Updated to 1.1.5
 - disable-static libs
