@@ -6,9 +6,11 @@
 %define withjudy 1
 %endif
 
+%global _hardened_build 1
+
 Name:           miredo
 Version:        1.2.5
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Tunneling of IPv6 over UDP through NATs
 
 Group:          Applications/Internet
@@ -249,6 +251,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Apr 23 2013 Jens <bugzilla-redhat@jens.kuehnel.org> - 1.2.5-4
+- Add PIE Compilier Flag
+
 * Mon Mar 25 2013 Jens <bugzilla-redhat@jens.kuehnel.org> - 1.2.5-3
 - add autoconf for aarch64 support
 
