@@ -10,7 +10,7 @@
 
 Name:           miredo
 Version:        1.2.5
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Tunneling of IPv6 over UDP through NATs
 
 Group:          Applications/Internet
@@ -251,6 +251,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.5-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
 * Tue Apr 23 2013 Jens <bugzilla-redhat@jens.kuehnel.org> - 1.2.5-4
 - Add PIE Compilier Flag
 
