@@ -9,8 +9,8 @@
 %global _hardened_build 1
 
 Name:           miredo
-Version:        1.2.5
-Release:        5%{?dist}
+Version:        1.2.6
+Release:        1%{?dist}
 Summary:        Tunneling of IPv6 over UDP through NATs
 
 Group:          Applications/Internet
@@ -24,6 +24,7 @@ Patch1:         reread-resolv-before-resolv-ipv4.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    libcap-devel 
+BuildRequires:    systemd-units
 BuildRequires:    autoconf
 %if %{withjudy}
 BuildRequires:     Judy-devel
@@ -251,6 +252,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Aug 05 2013 Jens <bugzilla-redhat@jens.kuehnel.org> - 1.2.6-1
+- upgrade to 1.2.6
+- fix missing buildreq systemd-units
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.5-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
