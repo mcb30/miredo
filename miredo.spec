@@ -21,7 +21,6 @@ Source1:        miredo-client.service
 Source2:        miredo-server.service
 Patch0:         miredo-config-not-exec
 Patch1:         reread-resolv-before-resolv-ipv4.patch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    libcap-devel 
 BuildRequires:    systemd-units
