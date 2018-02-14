@@ -211,9 +211,6 @@ fi
 /sbin/chkconfig --del miredo-server >/dev/null 2>&1 || :
 /bin/systemctl try-restart miredo-server.service >/dev/null 2>&1 || :
 
-%clean
-rm -rf %{buildroot}
-
 
 %files libs -f %{name}.lang
 %defattr(-,root,root,-)
