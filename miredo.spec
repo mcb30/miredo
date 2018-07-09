@@ -22,6 +22,7 @@ Source2:        miredo-server.service
 Patch0:         miredo-config-not-exec
 Patch1:         reread-resolv-before-resolv-ipv4.patch
 
+BuildRequires:  gcc
 BuildRequires:    libcap-devel 
 BuildRequires:    systemd-units
 BuildRequires:    autoconf
