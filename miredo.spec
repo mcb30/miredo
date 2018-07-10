@@ -214,20 +214,17 @@ fi
 
 
 %files libs -f %{name}.lang
-%defattr(-,root,root,-)
 %doc AUTHORS ChangeLog COPYING NEWS README THANKS TODO rpmdocs/*
 %{_libdir}/libteredo.so.*
 %{_libdir}/libtun6.so.*
 
 %files devel
-%defattr(-,root,root,-)
 %{_includedir}/libteredo/
 %{_includedir}/libtun6/
 %{_libdir}/libteredo.so
 %{_libdir}/libtun6.so
 
 %files server
-%defattr(-,root,root,-)
 %ghost %config(noreplace,missingok) %{_sysconfdir}/miredo/miredo-server.conf
 %{_bindir}/teredo-mire
 %{_sbindir}/miredo-server
@@ -239,7 +236,6 @@ fi
 
 
 %files client
-%defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/miredo/miredo.conf
 %config(noreplace) %{_sysconfdir}/miredo/client-hook
 %{_unitdir}/miredo-client.service
