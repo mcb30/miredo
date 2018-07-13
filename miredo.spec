@@ -10,7 +10,7 @@
 
 Name:           miredo
 Version:        1.2.6
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        Tunneling of IPv6 over UDP through NATs
 
 Group:          Applications/Internet
@@ -245,6 +245,9 @@ fi
 
 
 %changelog
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.6-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Thu Feb 08 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.6-9
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
