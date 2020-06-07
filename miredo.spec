@@ -41,8 +41,6 @@ IPv6-over-IPv4 (including 6to4).
 %package libs
 Summary:        Tunneling of IPv6 over UDP through NATs
 Group:          Applications/Internet 
-Requires(post):   /sbin/ldconfig
-Requires(postun): /sbin/ldconfig
 Requires(pre):    shadow-utils
 
 
@@ -132,8 +130,6 @@ getent passwd miredo >/dev/null || useradd -r -g miredo -d /etc/miredo \
          -s /sbin/nologin -c "Miredo Daemon" miredo
 exit 0
 
-%post libs -p /sbin/ldconfig
- 
 %post client
 %systemd_post %{name}-client.service
 
@@ -145,8 +141,6 @@ exit 0
 
 %preun server
 %systemd_preun %{name}-server.service
-
-%postun libs -p /sbin/ldconfig
 
 %postun client
 %systemd_postun_with_restart %{name}-client.service
