@@ -24,7 +24,6 @@ Patch1:         reread-resolv-before-resolv-ipv4.patch
 
 BuildRequires:  gcc
 BuildRequires:    libcap-devel 
-BuildRequires:    systemd-units
 BuildRequires:    autoconf
 %if %{withjudy}
 BuildRequires:     Judy-devel
@@ -72,11 +71,6 @@ you will need to install %{name}-devel.
 Summary:        Tunneling server for IPv6 over UDP through NATs
 Group:          Applications/Internet
 Requires:       %{name}-libs = %{version}-%{release}
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
-# For triggerun
-Requires(post): systemd-sysv
 %description server
 Miredo is an implementation of the "Teredo: Tunneling IPv6 over UDP
 through NATs" proposed Internet standard (RFC4380). This offers the server 
@@ -86,11 +80,6 @@ part of miredo. Most people will need only the client part.
 Summary:        Tunneling client for IPv6 over UDP through NATs
 Group:          Applications/Internet
 Requires:       %{name}-libs = %{version}-%{release}
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
-# For triggerun
-Requires(post): systemd-sysv
 Provides:       %{name} = %{version}-%{release}
 Obsoletes:      %{name} <= 1.1.6
 
@@ -191,26 +180,6 @@ if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
     /bin/systemctl try-restart miredo-server.service >/dev/null 2>&1 || :
 fi
-
-%triggerun -- miredo-client < 1.1.7-8
-# Save the current service runlevel info
-# User must manually run systemd-sysv-convert --apply miredo-client
-# to migrate them to systemd targets
-/usr/bin/systemd-sysv-convert --save miredo-client >/dev/null 2>&1 ||:
-
-# Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del miredo-client >/dev/null 2>&1 || :
-/bin/systemctl try-restart miredo-client.service >/dev/null 2>&1 || :
-
-%triggerun -- miredo-server < 1.1.7-8
-# Save the current service runlevel info
-# User must manually run systemd-sysv-convert --apply miredo-server
-# to migrate them to systemd targets
-/usr/bin/systemd-sysv-convert --save miredo-server >/dev/null 2>&1 ||:
-
-# Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del miredo-server >/dev/null 2>&1 || :
-/bin/systemctl try-restart miredo-server.service >/dev/null 2>&1 || :
 
 
 %files libs -f %{name}.lang
