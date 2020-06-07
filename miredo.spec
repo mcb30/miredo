@@ -2,8 +2,10 @@
 
 %if 0%{?rhel}
 %define withjudy 0
+%define with_systemd_rpm_macros 0
 %else
 %define withjudy 1
+%define with_systemd_rpm_macros 1
 %endif
 
 %global _hardened_build 1
@@ -27,6 +29,10 @@ BuildRequires:    libcap-devel
 BuildRequires:    autoconf
 %if %{withjudy}
 BuildRequires:     Judy-devel
+%endif
+
+%if 0%{?with_systemd_rpm_macros}
+BuildRequires:  systemd-rpm-macros
 %endif
 
 %description
