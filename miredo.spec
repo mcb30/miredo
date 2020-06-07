@@ -132,55 +132,27 @@ getent passwd miredo >/dev/null || useradd -r -g miredo -d /etc/miredo \
          -s /sbin/nologin -c "Miredo Daemon" miredo
 exit 0
 
-
 %post libs -p /sbin/ldconfig
  
-%post client 
-if [ $1 -eq 1 ] ; then 
-    # Initial installation 
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
-
+%post client
+%systemd_post %{name}-client.service
 
 %post server
-if [ $1 -eq 1 ] ; then 
-    # Initial installation 
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
-
+%systemd_post %{name}-server.service
 
 %preun client
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade
-    /bin/systemctl --no-reload disable miredo-client.service > /dev/null 2>&1 || :
-    /bin/systemctl stop miredo-client.service > /dev/null 2>&1 || :
-fi
+%systemd_preun %{name}-client.service
 
 %preun server
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade
-    /bin/systemctl --no-reload disable miredo-server.service > /dev/null 2>&1 || :
-    /bin/systemctl stop miredo-server.service > /dev/null 2>&1 || :
-fi
-
+%systemd_preun %{name}-server.service
 
 %postun libs -p /sbin/ldconfig
 
 %postun client
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall
-    /bin/systemctl try-restart miredo-client.service >/dev/null 2>&1 || :
-fi
-
+%systemd_postun_with_restart %{name}-client.service
 
 %postun server
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall
-    /bin/systemctl try-restart miredo-server.service >/dev/null 2>&1 || :
-fi
-
+%systemd_postun_with_restart %{name}-server.service
 
 %files libs -f %{name}.lang
 %doc AUTHORS ChangeLog COPYING NEWS README THANKS TODO rpmdocs/*
